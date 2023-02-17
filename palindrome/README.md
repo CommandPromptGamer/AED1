@@ -1,4 +1,4 @@
-# Palímdromo
+# Palíndromo
 
 ## Nome: Lucas Superti da Silva
 ## Turma: M1
