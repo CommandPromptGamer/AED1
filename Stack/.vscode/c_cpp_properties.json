@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\msys64\\mingw64\\include"
+            ],
+            "defines": [],
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\gcc.exe"
+        }
+    ],
+    "version": 4
+}
