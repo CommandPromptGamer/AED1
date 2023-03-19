@@ -45,6 +45,8 @@ int main() {
 
 	isPalindrome( list ) ? printf( "123321 is palindrome\n" ) : printf( "123321 is not palindrome\n" ) ;
 
+	Clear( &list );
+
 	return 0;
 }
 
