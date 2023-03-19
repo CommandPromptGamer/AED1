@@ -1,0 +1,49 @@
+Dr. Memory version 2.5.0 build 0 built on Oct 18 2021 03:01:22
+Windows version: WinVer=105;Rel=2009;Build=19045;Edition=Professional
+Dr. Memory results for pid 4700: "hello.exe"
+Application cmdline: "C:\AED1\PalindromeLinked\build\hello.exe"
+Recorded 124 suppression(s) from default C:\DrMemory-Windows-2.5.0\bin64\suppress-default.txt
+System call information is missing for this operating system: WinVer=105;Rel=2009;Build=19045;Edition=Professional.
+
+Error #1: UNADDRESSABLE ACCESS beyond top of stack: reading 0x0000002aa39ff9a0-0x0000002aa39ff9a8 8 byte(s)
+# 0 ___chkstk_ms
+# 1 _pei386_runtime_relocator
+# 2 __tmainCRTStartup
+# 3 .l_start 
+# 4 KERNEL32.dll!BaseThreadInitThunk
+Note: @0:00:01.176 in thread 2244
+Note: 0x0000002aa39ff9a0 refers to 776 byte(s) beyond the top of the stack 0x0000002aa39ffca8
+Note: instruction: or     $0x0000000000000000 (%rcx) -> (%rcx)
+
+Error #2: POSSIBLE LEAK 58 direct bytes 0x0000018b7f2701c0-0x0000018b7f2701fa + 0 indirect bytes
+# 0 replace_malloc                    [d:\a\drmemory\drmemory\common\alloc_replace.c:2580]
+# 1 msvcrt.dll!malloc_crt
+# 2 msvcrt.dll!_setargv  
+# 3 msvcrt.dll!_getmainargs
+# 4 pre_cpp_init
+# 5 msvcrt.dll!initterm  
+# 6 __tmainCRTStartup
+# 7 .l_start 
+# 8 KERNEL32.dll!BaseThreadInitThunk
+
+===========================================================================
+FINAL SUMMARY:
+
+DUPLICATE ERROR COUNTS:
+	Error #   1:      2
+
+SUPPRESSIONS USED:
+
+ERRORS FOUND:
+      1 unique,     2 total unaddressable access(es)
+      0 unique,     0 total uninitialized access(es)
+      0 unique,     0 total invalid heap argument(s)
+      0 unique,     0 total GDI usage error(s)
+      0 unique,     0 total handle leak(s)
+      0 unique,     0 total warning(s)
+      0 unique,     0 total,      0 byte(s) of leak(s)
+      1 unique,     1 total,     58 byte(s) of possible leak(s)
+ERRORS IGNORED:
+      3 unique,     3 total,     73 byte(s) of still-reachable allocation(s)
+         (re-run with "-show_reachable" for details)
+Details: C:\DrMemory-Windows-2.5.0\drmemory\logs\DrMemory-hello.exe.4700.000\results.txt
