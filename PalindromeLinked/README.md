@@ -1,4 +1,4 @@
-# Robô
+# Lista encadeada palíndromo
 
 ## Nome: Lucas Superti da Silva
 ## Turma: M1
