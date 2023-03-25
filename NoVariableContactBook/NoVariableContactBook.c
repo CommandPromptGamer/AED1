@@ -47,7 +47,7 @@ int main() {
 				#define REMOVE_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
 				#define REMOVED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) )
 				
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string and the iterator.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the removed "bool" char.
 					goto OutOfMemory;
 				}
 
@@ -165,13 +165,6 @@ int main() {
 
 	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT for readability when it is used to indicate the next node.
 
-	/*
-	void *  TRACER;  // Debug variables
-	void *  PREVIOUS;
-	void *  NEW_NODE;
-	int     REBUILD_ITERATOR;
-	*/
-
 	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocs space for the tracer and previous variables.
 		goto OutOfMemory;
 	}
@@ -195,23 +188,36 @@ int main() {
 		REBUILD_ITERATOR = 1;  // The iterator starts at 1 because we already have the first node.
 
 		while ( REBUILD_ITERATOR < *( int* )pBuffer ) {
-			TRACER = database;
+			TRACER = &database;
+			PREVIOUS = NULL;
+
+			printf( "Adding %s\n", ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );
 			
-			while ( *( void** )TRACER && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) < 0 ) {
+			while( *( void** )TRACER != NULL && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) < 0 ) {
 				PREVIOUS = TRACER;
 				TRACER = *( void** )TRACER;
 			}
+			
+			// Hacky workaround to the fact the tracer is going one more position than it should for some reason ¯\_(ツ)_/¯.
+			if ( *( void** )TRACER != NULL ) {  // Only do the hack if the node is not the first being added, there is no need (or way) to set the tracer to a node before the only node.
+				if ( PREVIOUS == NULL ) {  // If the node will be added to the beginning
+					TRACER = database;  // Set the tracer to the beginning
+					PREVIOUS = NULL;  // Set the previous to NULL, as there is no previous
+				} else {  // If the node is not the first
+					TRACER = PREVIOUS;  // Make the tracer go back one position
+					PREVIOUS = *( void** )( ( char* )PREVIOUS + sizeof( void* ) );  // Set the previous to be the previous of the previous node
+				}
+			}
 
 			NEW_NODE = malloc( NODE_SIZE );
-			//printf( "New node: %p\n", NEW_NODE );  // New node location for debugging.
 
 			*( void** )NEW_NODE = *( void** )TRACER;  // Next of the new node
-			//printf( "Next: %p\n", *( void** )TRACER );  // Debug printf
-			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
-			//printf( "Previous: %p\n", PREVIOUS );  // Debug printf
-			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
-			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );  // Debug printf
+			
 			*( void** )TRACER = NEW_NODE;  // Next of the previous node
+			
+			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
+			
+			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
 
 			if ( *( void** )NEW_NODE != NULL ) {  // Previous of the next node
 				*( void** )( ( char* )( *( void** )NEW_NODE ) + sizeof( void* ) ) = NEW_NODE;
@@ -223,6 +229,8 @@ int main() {
 
 			REBUILD_ITERATOR++;
 		}
+	} else {
+		database = NULL;
 	}
 
 	goto menu;
