@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
+
+static_assert( CHAR_BIT == 8, "A char is not a byte (or a byte is not 8 bits)." );
 
 #define PERSON_SIZE ( 10 * sizeof( char ) + sizeof( int ) + sizeof( unsigned long long ) ) // The size of each person on the contact book.
 #define PBUFFER_OFFSET sizeof( int ) // The offset of the first person from the start of pBuffer, comes from the amount of records int at the beginning.
