@@ -39,7 +39,6 @@ int main() {
 				( *( int* )pBuffer )++;
 				
 				goto rebuildDatabase;
-				
 				break;
 			
 			case '2':
@@ -59,10 +58,6 @@ int main() {
 					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
 						memmove( ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET + PERSON_SIZE, *( int* )pBuffer * PERSON_SIZE - REMOVE_ITERATOR * PERSON_SIZE - PERSON_SIZE );
 						
-						if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) ) ) {
-							goto outOfMemory;
-						}
-						
 						break;
 					}
 					
@@ -74,7 +69,6 @@ int main() {
 				getchar();
 				
 				goto rebuildDatabase;
-				
 				break;
 			
 			case '3':
@@ -84,14 +78,17 @@ int main() {
 				break;
 			
 			case '4':
-				void *  tracer = database;
-				printf( "%p\n", *( void** )tracer );
+				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers ans an int allocated from the rebuildDatabase.
+				//void *  LIST_TRACER;
+
+				LIST_TRACER = database;
+
+				while( LIST_TRACER != NULL ) {
+					printf( "Nome: %s\nIdade: %d\nTelefone: %lld\n", *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ), *( int* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) ), *( unsigned long long* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) + sizeof( int ) ) );
 				
-				while ( tracer ) {  // Frees the database.
-					printf( "%s\n", *( char** )( ( char* )tracer + sizeof( void* ) * 2 ) );
-					tracer = *( void** )tracer;
+					LIST_TRACER = *( void** )LIST_TRACER;
 				}
-				
+
 				getchar();
 				break;
 			
@@ -100,27 +97,26 @@ int main() {
 				break;
 			
 			default:
-				printf( "Opção inválida." );
+				printf( "Opção inválida.\n" );
+				getchar();
 				break;
 		}
 	}
 
 	rebuildDatabase:
-	/*
 	#define TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )
 	#define PREVIOUS ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) ) )
 	#define NEW_NODE ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 2 ) )
 	#define REBUILD_ITERATOR ( *( int * )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 3 ) )
-	*/
 
-	#define NEXT PREVIOUS
+	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT for readability when it is used to indicate the next node.
 
-	void *  TRACER;
+	/*void *  TRACER;
 	void *  PREVIOUS;
 	void *  NEW_NODE;
-	int     REBUILD_ITERATOR;
+	int     REBUILD_ITERATOR;*/
 
-	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 2 ) ) ) {  // Allocs spcace for the tracer and previous variables.
+	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocs spcace for the tracer and previous variables.
 		goto outOfMemory;
 	}
 
@@ -132,48 +128,51 @@ int main() {
 		TRACER = NEXT;
 	}
 
-	database = NULL;
+	if ( *( int* )pBuffer >= 1 ) {
+		TRACER = malloc( NODE_SIZE );
+		database = TRACER;
 
-	if ( *( int* )pBuffer >= 1 ) {  // First node
-		NEW_NODE = malloc( NODE_SIZE );
-		database = NEW_NODE;
+		*( void** )TRACER = NULL;  // Next
+		*( void** )( ( char* )TRACER + sizeof( void* ) ) = NULL; // Previous
+		*( void** )( ( char* )TRACER + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + PBUFFER_OFFSET );  // Data
 
-		*( void** )( ( char* )NEW_NODE ) = NULL;  // Next
-		*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = NULL;  // Previous
-		*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void * )( ( char* )pBuffer + PBUFFER_OFFSET );  // Data
+		REBUILD_ITERATOR = 1;  // The iterator starts at 1 because we already have the first node.
 
-		REBUILD_ITERATOR = 1; // REBUILD_ITERATOR is set to 1 as we have the first node already.
-	
 		while ( REBUILD_ITERATOR < *( int* )pBuffer ) {
 			TRACER = database;
-
-			while ( *( void** )TRACER && strcmp( *( char** )TRACER, *( char** )( *( int* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) < 1 ) {
+			
+			while ( *( void** )TRACER && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) < 0 ) {
 				PREVIOUS = TRACER;
 				TRACER = *( void** )TRACER;
 			}
 
 			NEW_NODE = malloc( NODE_SIZE );
+			//printf( "New node: %p\n", NEW_NODE );
 
-			if ( *( void** )( ( char* )TRACER + sizeof( void * ) ) == NULL ) {  // Sets the database head to the new node if it is the first.
-				database = NEW_NODE;
+			*( void** )NEW_NODE = *( void** )TRACER;  // Next of the new node
+			//printf( "Next: %p\n", *( void** )TRACER );
+			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
+			//printf( "Previous: %p\n", PREVIOUS );
+			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
+			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );
+			*( void** )TRACER = NEW_NODE;  // Next of the previous node
+
+			if ( *( void** )NEW_NODE != NULL ) {  // Previous of the next node
+				*( void** )( ( char* )( *( void** )NEW_NODE ) + sizeof( void* ) ) = NEW_NODE;
 			}
-			
-			*( void** )TRACER = NEW_NODE;  // Next from the previous node
-			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS;  // Previous of the new node
-			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = *( char** )TRACER;  // Data of the new node
+
+			if ( *( void** )( *( char** )TRACER + sizeof( void* ) ) == NULL ) {  // The database is updated if the new node is added to the beginning.
+				database = TRACER;
+			}
 
 			REBUILD_ITERATOR++;
 		}
 	}
 
-	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) ) ) {  // Deallocs the variables.
-		goto outOfMemory;
-	}
-
 	goto menu;
 
 	outOfMemory:
-	puts( "Fatal: out of memory." );
+	puts( "Fatal: out of memory.\n" );
 	exit( 1 );
 
 	return 0;
