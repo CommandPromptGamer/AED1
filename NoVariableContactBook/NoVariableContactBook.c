@@ -30,22 +30,26 @@ int main() {
 				scanf( "%d", ( int * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) ) ) );
 
 				printf("Entre o telefone: "); // Phone number
-				scanf( "%lld", ( unsigned long long * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) + sizeof( int ) ) ) );
+				scanf( "%llu", ( unsigned long long * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) + sizeof( int ) ) ) );
 				getchar();
 
 				( *( int* )pBuffer )++;  // Increments the ammount of records.
+
+				putchar( '\n' );  // Spacing before the menu.
 				
 				goto RebuildDatabase;
 				break;
 			
 			case '2':
 				#define REMOVE_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
+				#define REMOVED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) )
 				
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) ) ) {  // Allocates space for the input string and the iterator.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string and the iterator.
 					goto OutOfMemory;
 				}
 
 				REMOVE_ITERATOR = 0;
+				REMOVED = 0;
 				
 				getchar();
 				printf( "Entre o nome do registro que deseja remover: " );
@@ -56,10 +60,17 @@ int main() {
 					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
 						memmove( ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET + PERSON_SIZE, *( int* )pBuffer * PERSON_SIZE - REMOVE_ITERATOR * PERSON_SIZE - PERSON_SIZE );
 						( *( int* )pBuffer )--;  // Decrements the ammount of records.
+						
+						puts( "Registro removido.\n" );
+						REMOVED = 1;
 						break;
 					}
 					
 					REMOVE_ITERATOR++;
+				}
+
+				if ( !REMOVED ) {
+					puts( "Registro não encontrado.\n" );
 				}
 				
 				getchar();
@@ -69,12 +80,14 @@ int main() {
 			
 			case '3':
 				#define SEARCH_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
+				#define PRINTED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( char ) ) )
 
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) ) ) {  // Allocates space for the input string and the iterator.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the printed "bool" char.
 					goto OutOfMemory;
 				}
 				
 				SEARCH_ITERATOR = 0;
+				PRINTED = 0;
 
 				getchar();
 				printf( "Entre o nome do registro que deseja buscar: " );
@@ -83,12 +96,17 @@ int main() {
 				while ( SEARCH_ITERATOR < *( int* )pBuffer ) {
 					// The input string and the string being iterated are compared and when they match the details of that record are printed.
 					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
-						printf( "Nome: %s\nIdade: %d\nTelefone: %lld\n", ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
-						
+						printf( "=====================\nNome: %s\nIdade: %d\nTelefone: %llu\n=====================\n\n", ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
+						PRINTED = 1;
+
 						break;
 					}
 
 					SEARCH_ITERATOR++;
+				}
+
+				if ( !PRINTED ) {
+					puts( "Registro não encontrado.\n" );
 				}
 
 				getchar();
@@ -103,10 +121,20 @@ int main() {
 				LIST_TRACER = database;
 
 				while( LIST_TRACER != NULL ) {
-					printf( "Nome: %s\nIdade: %d\nTelefone: %lld\n", *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ), *( int* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) ), *( unsigned long long* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) + sizeof( int ) ) );
+					printf( "=====================\nNome: %s\nIdade: %d\nTelefone: %llu\n", *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ), *( int* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) ), *( unsigned long long* )( *( char** )( ( char* )LIST_TRACER + sizeof( void* ) * 2 ) + 10 * sizeof( char ) + sizeof( int ) ) );
 				
 					LIST_TRACER = *( void** )LIST_TRACER;
 				}
+
+				if ( *(int* )pBuffer >= 1 ) {
+					puts( "=====================" );
+				}
+
+				if ( *( int* )pBuffer == 0 ) {
+					puts( "Não há nenhum registro para listar." );  // A newline is not put as it will be added in the putchar regardless of wether this string was put or not.
+				}
+
+				putchar( '\n' );  // Spacing before the menu.
 
 				getchar();
 				break;
@@ -171,11 +199,11 @@ int main() {
 			//printf( "New node: %p\n", NEW_NODE );  // New node location for debugging.
 
 			*( void** )NEW_NODE = *( void** )TRACER;  // Next of the new node
-			//printf( "Next: %p\n", *( void** )TRACER );  // Bebugging
+			//printf( "Next: %p\n", *( void** )TRACER );  // Bebug printf
 			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
-			//printf( "Previous: %p\n", PREVIOUS );  // Bebugging
+			//printf( "Previous: %p\n", PREVIOUS );  // Bebug printf
 			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
-			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );  // Bebugging
+			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );  // Bebug printf
 			*( void** )TRACER = NEW_NODE;  // Next of the previous node
 
 			if ( *( void** )NEW_NODE != NULL ) {  // Previous of the next node
