@@ -3,14 +3,14 @@
 #include <string.h>
 
 #define PERSON_SIZE ( 10 * sizeof( char ) + sizeof( int ) + sizeof( unsigned long long ) ) // The size of each person on the contact book.
-#define PBUFFER_OFFSET sizeof( int ) // The offset of the first person from the start of pBuffer, comes from the ammount of records int at the beginning.
+#define PBUFFER_OFFSET sizeof( int ) // The offset of the first person from the start of pBuffer, comes from the amount of records int at the beginning.
 #define NODE_SIZE ( sizeof( void* ) * 3 )  // The size of a node. The first void* pointer is the next node, the second is the previous node and the third is the data.
 
 int main() {
-	void *  pBuffer = malloc( sizeof( int ) );  // The pBuffer is initally allocated to contain the int containing the ammount of records.
+	void *  pBuffer = malloc( sizeof( int ) );  // The pBuffer is initially allocated to contain the int containing the amount of records.
 	void *  database = NULL;
 
-	*( int* )pBuffer = 0;  // The ammount of records is initialized at 0.
+	*( int* )pBuffer = 0;  // The amount of records is initialized at 0.
 
 	while (1) {
 		menu:
@@ -33,7 +33,7 @@ int main() {
 				scanf( "%llu", ( unsigned long long * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) + sizeof( int ) ) ) );
 				getchar();
 
-				( *( int* )pBuffer )++;  // Increments the ammount of records.
+				( *( int* )pBuffer )++;  // Increments the amount of records.
 
 				putchar( '\n' );  // Spacing before the menu.
 				
@@ -59,7 +59,7 @@ int main() {
 					// The input string and the string being iterated are compared and when they match all the records after it are moved to its location, overriding it.					
 					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
 						memmove( ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET + PERSON_SIZE, *( int* )pBuffer * PERSON_SIZE - REMOVE_ITERATOR * PERSON_SIZE - PERSON_SIZE );
-						( *( int* )pBuffer )--;  // Decrements the ammount of records.
+						( *( int* )pBuffer )--;  // Decrements the amount of records.
 						
 						puts( "Registro removido.\n" );
 						REMOVED = 1;
@@ -165,7 +165,7 @@ int main() {
 	int     REBUILD_ITERATOR;
 	*/
 
-	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocs spcace for the tracer and previous variables.
+	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocs space for the tracer and previous variables.
 		goto OutOfMemory;
 	}
 
@@ -199,11 +199,11 @@ int main() {
 			//printf( "New node: %p\n", NEW_NODE );  // New node location for debugging.
 
 			*( void** )NEW_NODE = *( void** )TRACER;  // Next of the new node
-			//printf( "Next: %p\n", *( void** )TRACER );  // Bebug printf
+			//printf( "Next: %p\n", *( void** )TRACER );  // Debug printf
 			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
-			//printf( "Previous: %p\n", PREVIOUS );  // Bebug printf
+			//printf( "Previous: %p\n", PREVIOUS );  // Debug printf
 			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
-			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );  // Bebug printf
+			//printf( "Data: %p\n", ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) );  // Debug printf
 			*( void** )TRACER = NEW_NODE;  // Next of the previous node
 
 			if ( *( void** )NEW_NODE != NULL ) {  // Previous of the next node
