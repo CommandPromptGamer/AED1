@@ -145,9 +145,13 @@ int main() {
 			case '5':
 				exit( 0 ); // Exit the program.
 				break;
+
+			case '\n':
+				puts( "Entre uma opção. Use 5 para sair.\n" );
+				break;
 			
 			default:
-				printf( "Opção inválida.\n" );
+				puts( "Opção inválida.\n" );
 				getchar();
 				break;
 		}
