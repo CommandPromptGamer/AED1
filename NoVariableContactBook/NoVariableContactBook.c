@@ -6,9 +6,6 @@
 #define PBUFFER_OFFSET sizeof( int ) // First person offset from the count int at the start of pBuffer.
 #define NODE_SIZE ( sizeof( void* ) * 3 )
 
-void ClearDatabase( void ** database );
-void RebuildDatabase( void ** database, void * pBuffer );
-
 int main() {
 	void *  pBuffer = malloc( sizeof( int ) );
 	void *  database = NULL;
@@ -72,14 +69,32 @@ int main() {
 				break;
 			
 			case '3':
-				// Search for record.
-				
+				#define SEARCH_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
+
+				SEARCH_ITERATOR = 0;
+
 				getchar();
+				printf( "Entre o nome do registro que deseja buscar: " );
+				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET );
+
+				while ( SEARCH_ITERATOR < *( int* )pBuffer ) {
+					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
+						printf( "Nome: %s\nIdade: %d\nTelefone: %lld\n", ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
+						
+						break;
+					}
+
+					SEARCH_ITERATOR++;
+				}
+
+				getchar();
+
+				goto rebuildDatabase;
 				break;
 			
 			case '4':
 				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers ans an int allocated from the rebuildDatabase.
-				//void *  LIST_TRACER;
+				//void *  LIST_TRACER;  // Debug variable
 
 				LIST_TRACER = database;
 
@@ -111,7 +126,7 @@ int main() {
 
 	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT for readability when it is used to indicate the next node.
 
-	/*void *  TRACER;
+	/*void *  TRACER;  // Debug variables
 	void *  PREVIOUS;
 	void *  NEW_NODE;
 	int     REBUILD_ITERATOR;*/
