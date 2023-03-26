@@ -3,7 +3,12 @@
 #include <string.h>
 #include <assert.h>
 
-static_assert( CHAR_BIT == 8, "A char is not a byte (or a byte is not 8 bits)." );
+static_assert( sizeof( char ) == 1, "A char is not a byte." );
+/*
+A char is assumed to be 1 byte, so that expressions such as ( char* )pBuffer + sizeof( int ) will point to the
+position that is sizeof( int ) bytes after the beginning of pBuffer. This cannot be done with void * in standard C as
+standard C does not support arithmetic operations on void * pointers.
+*/
 
 #define PERSON_SIZE ( 10 * sizeof( char ) + sizeof( int ) + sizeof( unsigned long long ) ) // The size of each person on the contact book.
 #define PBUFFER_OFFSET sizeof( int ) // The offset of the first person from the start of pBuffer, comes from the amount of records int at the beginning.
@@ -16,7 +21,7 @@ int main() {
 	*( int* )pBuffer = 0;  // The amount of records is initialized at 0.
 
 	while (1) {
-		menu:
+		Menu:
 		printf("Escolha uma opção: \n1 - Incluir registro\n2 - Apagar registro por nome\n3 - Buscar por um registro\n4 - Listar o arquivo\n5 - Sair\nEntre a sua opção: ");
 		
 		switch ( getchar() ) {
@@ -65,7 +70,9 @@ int main() {
 						( *( int* )pBuffer )--;  // Decrements the amount of records.
 						
 						puts( "Registro removido.\n" );
+						
 						REMOVED = 1;
+						
 						break;
 					}
 					
@@ -97,7 +104,7 @@ int main() {
 				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET );
 
 				while ( SEARCH_ITERATOR < *( int* )pBuffer ) {
-					// The input string and the string being iterated are compared and when they match the details of that record are printed.
+					// The input string and the string being iterated are compared, when they match the details of that record are printed.
 					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
 						printf( "=====================\nNome: %s\nIdade: %d\nTelefone: %llu\n=====================\n\n", ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
 						PRINTED = 1;
@@ -118,8 +125,7 @@ int main() {
 				break;
 			
 			case '4':
-				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers and an int allocated from the RebuildDatabase and we only need 1.
-				//void *  LIST_TRACER;  // Debug variable
+				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers and an int allocated from the RebuildDatabase and we only need 1 pointer.
 
 				LIST_TRACER = database;
 
@@ -134,7 +140,7 @@ int main() {
 				}
 
 				if ( *( int* )pBuffer == 0 ) {
-					puts( "Não há nenhum registro para listar." );  // A newline is not put as it will be added in the putchar regardless of wether this string was put or not.
+					puts( "Não há nenhum registro para listar." );  // A newline is not put as it will be added in the putchar regardless of whether this string was put or not.
 				}
 
 				putchar( '\n' );  // Spacing before the menu.
@@ -152,6 +158,7 @@ int main() {
 			
 			default:
 				puts( "Opção inválida.\n" );
+				
 				getchar();
 				break;
 		}
@@ -163,15 +170,15 @@ int main() {
 	#define NEW_NODE ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 2 ) )
 	#define REBUILD_ITERATOR ( *( int * )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 3 ) )
 
-	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT for readability when it is used to indicate the next node.
+	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT, for readability, when it is used to indicate the next node.
 
-	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocs space for the tracer and previous variables.
+	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocates space for the tracer and previous variables.
 		goto OutOfMemory;
 	}
 
 	TRACER = database;
 
-	while ( TRACER != NULL ) {  // Frees the database.
+	while ( TRACER != NULL ) {  // Frees the entire database.
 		NEXT = *( void** )TRACER;
 		free( TRACER );
 		TRACER = NEXT;
@@ -190,8 +197,6 @@ int main() {
 		while ( REBUILD_ITERATOR < *( int* )pBuffer ) {
 			TRACER = &database;
 			PREVIOUS = NULL;
-
-			printf( "Adding %s\n", ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );
 			
 			while( *( void** )TRACER != NULL && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) < 0 ) {
 				PREVIOUS = TRACER;
@@ -233,7 +238,7 @@ int main() {
 		database = NULL;
 	}
 
-	goto menu;
+	goto Menu;
 
 	OutOfMemory:
 	puts( "Fatal: out of memory.\n" );
