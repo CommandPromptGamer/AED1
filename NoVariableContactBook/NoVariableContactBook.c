@@ -10,9 +10,8 @@ position that is sizeof( int ) bytes after the beginning of pBuffer. This cannot
 standard C does not support arithmetic operations on void * pointers.
 */
 
-#define PERSON_SIZE ( 10 * sizeof( char ) + sizeof( int ) + sizeof( unsigned long long ) ) // The size of each person on the contact book.
+#define RECORD_SIZE ( 10 * sizeof( char ) + sizeof( int ) + sizeof( unsigned long long ) ) // The size of each person on the contact book.
 #define PBUFFER_OFFSET sizeof( int ) // The offset of the first person from the start of pBuffer, comes from the amount of records int at the beginning.
-#define NODE_SIZE ( sizeof( void* ) * 3 )  // The size of a node. The first void* pointer is the next node, the second is the previous node and the third is the data.
 
 int main() {
 	void *  pBuffer = malloc( sizeof( int ) );  // The pBuffer is initially allocated to contain the int containing the amount of records.
@@ -26,19 +25,19 @@ int main() {
 		
 		switch ( getchar() ) {
 			case '1':
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer + 1 ) * PERSON_SIZE ) + PBUFFER_OFFSET ) ) ) {  // Allocates space for the new record.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer + 1 ) * RECORD_SIZE ) + PBUFFER_OFFSET ) ) ) {  // Allocates space for the new record.
 					goto OutOfMemory;
 				}
 				
 				getchar();
 				printf( "Entre o nome: " );  // Name
-				scanf( "%[^\n]s", ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) ) );
+				scanf( "%[^\n]s", ( char* )pBuffer + ( PBUFFER_OFFSET + ( RECORD_SIZE * ( *( int* )pBuffer ) ) ) );
 
 				printf( "Entre a idade: " ); // Age
-				scanf( "%d", ( int * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) ) ) );
+				scanf( "%d", ( int * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( RECORD_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) ) ) );
 
 				printf("Entre o telefone: "); // Phone number
-				scanf( "%llu", ( unsigned long long * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( PERSON_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) + sizeof( int ) ) ) );
+				scanf( "%llu", ( unsigned long long * )( ( char* )pBuffer + ( PBUFFER_OFFSET + ( RECORD_SIZE * ( *( int* )pBuffer ) ) + 10 * sizeof( char ) + sizeof( int ) ) ) );
 				getchar();
 
 				( *( int* )pBuffer )++;  // Increments the amount of records.
@@ -49,10 +48,10 @@ int main() {
 				break;
 			
 			case '2':
-				#define REMOVE_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
-				#define REMOVED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) )
+				#define REMOVE_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) *RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
+				#define REMOVED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) ) )
 				
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the removed "bool" char.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the removed "bool" char.
 					goto OutOfMemory;
 				}
 
@@ -61,12 +60,12 @@ int main() {
 				
 				getchar();
 				printf( "Entre o nome do registro que deseja remover: " );
-				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET );
+				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET );
 
 				while ( REMOVE_ITERATOR < *( int* )pBuffer ) {
 					// The input string and the string being iterated are compared and when they match all the records after it are moved to its location, overriding it.					
-					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
-						memmove( ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, ( char* )pBuffer + REMOVE_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET + PERSON_SIZE, *( int* )pBuffer * PERSON_SIZE - REMOVE_ITERATOR * PERSON_SIZE - PERSON_SIZE );
+					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + REMOVE_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET ) ) {
+						memmove( ( char* )pBuffer + REMOVE_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET, ( char* )pBuffer + REMOVE_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET + RECORD_SIZE, *( int* )pBuffer * RECORD_SIZE - REMOVE_ITERATOR * RECORD_SIZE - RECORD_SIZE );
 						( *( int* )pBuffer )--;  // Decrements the amount of records.
 						
 						puts( "Registro removido.\n" );
@@ -89,10 +88,10 @@ int main() {
 				break;
 			
 			case '3':
-				#define SEARCH_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
-				#define PRINTED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( char ) ) )
+				#define SEARCH_ITERATOR ( *( int* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) ) )
+				#define PRINTED ( *( char* )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( char ) ) )
 
-				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the printed "bool" char.
+				if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + 10 * sizeof( char ) + sizeof( int ) + sizeof( char ) ) ) ) {  // Allocates space for the input string, the iterator and the printed "bool" char.
 					goto OutOfMemory;
 				}
 				
@@ -101,12 +100,12 @@ int main() {
 
 				getchar();
 				printf( "Entre o nome do registro que deseja buscar: " );
-				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET );
+				scanf( "%[^\n]s", ( char* )pBuffer + ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET );
 
 				while ( SEARCH_ITERATOR < *( int* )pBuffer ) {
 					// The input string and the string being iterated are compared, when they match the details of that record are printed.
-					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) ) {
-						printf( "=====================\nNome: %s\nIdade: %d\nTelefone: %llu\n=====================\n\n", ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
+					if ( !strcmp( ( char * )pBuffer + ( ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET ), ( char* )pBuffer + SEARCH_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET ) ) {
+						printf( "=====================\nNome: %s\nIdade: %d\nTelefone: %llu\n=====================\n\n", ( char* )pBuffer + SEARCH_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET, *( int* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) ), *( unsigned long long* )( ( char* )( ( char* )pBuffer + SEARCH_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET ) + 10 * sizeof( char ) + sizeof( int ) ) );
 						PRINTED = 1;
 
 						break;
@@ -125,7 +124,7 @@ int main() {
 				break;
 			
 			case '4':
-				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers and an int allocated from the RebuildDatabase and we only need 1 pointer.
+				#define LIST_TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET ) )  // No space needs to be allocated as we already have 3 pointers and an int allocated from the RebuildDatabase and we only need 1 pointer.
 
 				LIST_TRACER = database;
 
@@ -165,14 +164,15 @@ int main() {
 	}
 
 	RebuildDatabase:
-	#define TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET ) )
-	#define PREVIOUS ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) ) )
-	#define NEW_NODE ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 2 ) )
-	#define REBUILD_ITERATOR ( *( int * )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 3 ) )
+	#define TRACER ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET ) )
+	#define PREVIOUS ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) ) )
+	#define NEW_NODE ( *( void ** )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 2 ) )
+	#define REBUILD_ITERATOR ( *( int * )( ( ( char * )pBuffer + ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + sizeof( void* ) * 3 ) )
+	#define NODE_SIZE ( sizeof( void* ) * 3 )  // The size of a node. The first void* pointer is the next node, the second is the previous node and the third is the data.
 
 	#define NEXT PREVIOUS  // The PREVIOUS is called NEXT, for readability, when it is used to indicate the next node.
 
-	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * PERSON_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocates space for the tracer and previous variables.
+	if ( !( pBuffer = realloc( pBuffer, ( ( *( int* )pBuffer ) * RECORD_SIZE ) + PBUFFER_OFFSET + sizeof( void * ) * 3 + sizeof( int ) ) ) ) {  // Allocates space for the tracer and previous variables.
 		goto OutOfMemory;
 	}
 
@@ -198,7 +198,7 @@ int main() {
 			TRACER = &database;
 			PREVIOUS = NULL;
 			
-			while( *( void** )TRACER != NULL && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET ) < 0 ) {
+			while( *( void** )TRACER != NULL && strcmp( *( char** )( ( char* )TRACER + sizeof( void* ) * 2 ), ( char* )pBuffer + REBUILD_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET ) < 0 ) {
 				PREVIOUS = TRACER;
 				TRACER = *( void** )TRACER;
 			}
@@ -222,7 +222,7 @@ int main() {
 			
 			*( void** )( ( char* )NEW_NODE + sizeof( void* ) ) = PREVIOUS; // Previous of the new node
 			
-			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * PERSON_SIZE + PBUFFER_OFFSET );  // Data of the new node
+			*( void** )( ( char* )NEW_NODE + sizeof( void* ) * 2 ) = ( void* )( ( char* )pBuffer + REBUILD_ITERATOR * RECORD_SIZE + PBUFFER_OFFSET );  // Data of the new node
 
 			if ( *( void** )NEW_NODE != NULL ) {  // Previous of the next node
 				*( void** )( ( char* )( *( void** )NEW_NODE ) + sizeof( void* ) ) = NEW_NODE;
