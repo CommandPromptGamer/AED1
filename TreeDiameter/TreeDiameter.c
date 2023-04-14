@@ -53,7 +53,7 @@ int diameterOfBinaryTree(struct TreeNode* root){
         right = FindDown( root->right );
     }
 
-    return right + left + 1;
+    return right + left;
 }
 
 int FindDown( struct TreeNode* branch ) {
