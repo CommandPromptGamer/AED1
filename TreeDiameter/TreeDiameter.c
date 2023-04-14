@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 struct TreeNode {
     int val;
@@ -11,29 +12,15 @@ struct TreeNode {
 
 int diameterOfBinaryTree(struct TreeNode* root);
 int FindDown( struct TreeNode* branch );
+void FillTreeRandomly( struct TreeNode** root );
 
 int main() {
-    struct TreeNode* root = malloc( sizeof( struct TreeNode ) );
-    struct TreeNode* branch = root;
-    
-    branch->val = 10;
+    struct TreeNode* root = NULL;
 
-    for ( int i = 11; i < 20; i++ ) {
-        branch->right = malloc( sizeof( struct TreeNode ) );
-        branch = branch->right;
+    srand( time( NULL ) );
 
-        branch->val = i;
-        branch->left = NULL;
-    }
-
-    branch = root;
-
-    for ( int i = 9; i > 0; i-- ) {
-        branch->left = malloc( sizeof( struct TreeNode ) );
-        branch = branch->left;
-
-        branch->val = i;
-        branch->right = NULL;
+    for( int i = 0; i < 100; i++ ) {
+        FillTreeRandomly( &root );
     }
 
     printf( "%d\n", diameterOfBinaryTree( root ) );
@@ -73,4 +60,18 @@ int FindDown( struct TreeNode* branch ) {
     }
 
     return left > right ? left : right;
+}
+
+void FillTreeRandomly( struct TreeNode** root ) {
+    if ( *root == NULL ) {
+        *root = malloc( sizeof( struct TreeNode ) );
+
+        ( *root )->val = rand() % 201 - 100;
+        ( *root )->left = NULL;
+        ( *root )->right = NULL;
+    } else if ( ( ( *root )->left == NULL && ( *root )->right == NULL ) || ( ( *root )->left != NULL && ( *root )->right != NULL ) ) {
+        rand() > RAND_MAX / 2 ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
+    } else {
+        ( *root )->left == NULL ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
+    }
 }
