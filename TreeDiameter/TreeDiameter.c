@@ -63,9 +63,7 @@ void FillTreeRandomly( struct TreeNode** root ) {
         ( *root )->val = rand() % 201 - 100;
         ( *root )->left = NULL;
         ( *root )->right = NULL;
-    } else if ( ( ( *root )->left == NULL && ( *root )->right == NULL ) || ( ( *root )->left != NULL && ( *root )->right != NULL ) ) {
-        rand() > RAND_MAX / 2 ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
     } else {
-        ( *root )->left == NULL ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
+        rand() > RAND_MAX / 2 ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
     }
 }
