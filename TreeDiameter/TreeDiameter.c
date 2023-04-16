@@ -1,5 +1,3 @@
-// Lucas Superti da Silva, M1
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -12,9 +10,9 @@ struct TreeNode {
 
 int diameterOfBinaryTree(struct TreeNode* root);
 int FindDown( struct TreeNode* branch );
-void FillTreeRandomly( struct TreeNode** root );
+void FillTreeRandomly_r( struct TreeNode** root );
 
-int maximum = 0;  // Global maximum variable
+int  maximum = 0;
 
 int main() {
 	struct TreeNode* root = NULL;
@@ -22,7 +20,7 @@ int main() {
 	srand( time( NULL ) );
 
 	for( int i = 0; i < 100; i++ ) {
-		FillTreeRandomly( &root );
+		FillTreeRandomly_r( &root );
 	}
 
 	printf( "%d\n", diameterOfBinaryTree( root ) );
@@ -37,8 +35,8 @@ int diameterOfBinaryTree(struct TreeNode* root){
 }
 
 int FindDown( struct TreeNode* branch ) {
-	int left;
-	int right;
+	int  left;
+	int  right;
 
 	if ( branch->left != NULL ) {
 		left = FindDown( branch->left );
@@ -52,11 +50,14 @@ int FindDown( struct TreeNode* branch ) {
 		right = 0;
 	}
 
-	maximum = left + right > maximum ? left + right : maximum;
+	if ( left + right > maximum ) {
+		maximum = left + right;
+	}
+	
 	return 1 + ( left > right ? left : right );
 }
 
-void FillTreeRandomly( struct TreeNode** root ) {
+void FillTreeRandomly_r( struct TreeNode** root ) {
 	if ( *root == NULL ) {
 		*root = malloc( sizeof( struct TreeNode ) );
 
@@ -64,6 +65,6 @@ void FillTreeRandomly( struct TreeNode** root ) {
 		( *root )->left = NULL;
 		( *root )->right = NULL;
 	} else {
-		rand() > RAND_MAX / 2 ? FillTreeRandomly( &( *root )->left ) : FillTreeRandomly( &( *root )->right );
+		rand() > RAND_MAX / 2 ? FillTreeRandomly_r( &( *root )->left ) : FillTreeRandomly_r( &( *root )->right );
 	}
 }
