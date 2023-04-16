@@ -9,7 +9,7 @@ struct TreeNode {
 };
 
 int diameterOfBinaryTree(struct TreeNode* root);
-int FindDown( struct TreeNode* branch );
+int FindDown_r( struct TreeNode* branch );
 void FillTreeRandomly_r( struct TreeNode** root );
 
 int  maximum = 0;
@@ -29,23 +29,23 @@ int main() {
 }
 
 int diameterOfBinaryTree(struct TreeNode* root){
-	FindDown( root );
+	FindDown_r( root );
 
 	return maximum;
 }
 
-int FindDown( struct TreeNode* branch ) {
+int FindDown_r( struct TreeNode* branch ) {
 	int  left;
 	int  right;
 
 	if ( branch->left != NULL ) {
-		left = FindDown( branch->left );
+		left = FindDown_r( branch->left );
 	} else {
 		left = 0;
 	}
 
 	if ( branch->right != NULL ) {
-		right = FindDown( branch->right );
+		right = FindDown_r( branch->right );
 	} else {
 		right = 0;
 	}
