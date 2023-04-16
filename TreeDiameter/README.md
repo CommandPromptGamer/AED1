@@ -1,4 +1,4 @@
-# Diâmetro de uma árvore de binária
+# Diâmetro de uma árvore binária
 
 ## Nome: Lucas Superti da Silva
 ## Turma: M1
