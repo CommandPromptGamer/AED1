@@ -28,6 +28,25 @@ int main() {
     return 0;
 }
 
+void SelectionSort( int *array, int size ) {
+    int  smallestIndex;
+    int  aux;
+    
+    for ( int i = 0; i < size; i++ ) {
+        smallestIndex = i;
+        
+        for ( int j = i; j < size; j++ ) {
+            if ( array[j] < array[smallestIndex] ) {
+                smallestIndex = j;
+            }
+        }
+
+        aux = array[i];
+        array[i] = array[smallestIndex];
+        array[smallestIndex] = aux;
+    }
+}
+
 bool InArray( int *array, int size, int n ) {
     for ( int i = 0; i < size; i++ ) {
         if ( n == array[ i ] ) {
@@ -39,11 +58,17 @@ bool InArray( int *array, int size, int n ) {
 }
 
 int *Solve( int* nums, int k, int size ) {
-    int  *result = malloc( k * sizeof( int ) );
-    int  aux;
+    int *  result = malloc( k * sizeof( int ) );
+    int    smallest = 0;
+
+    for ( int i = 0; i < size; i++ ) {
+        if ( nums[ i ] < nums[ smallest ] ) {
+            smallest = i;
+        }
+    }
 
     for ( int i = 0; i < k; i++ ) {
-        result[ i ] = 0;
+        result[ i ] = smallest;
     }
     
     for ( int i = 0; i < k; i++ ) {
@@ -54,11 +79,7 @@ int *Solve( int* nums, int k, int size ) {
         }
     }
 
-    for ( int i = 0; i < k / 2; i++ ) {
-        aux = result[ i ];
-        result[ i ] = result[ k - 1 ];
-        result[ k - 1 ] = aux;
-    }
+    SelectionSort( result, k );
 
     for ( int i = 0; i < k; i++ ) {
         result[ i ] = nums[ result [ i ] ];
