@@ -4,7 +4,7 @@
 ## Turma: M1
 ## Regras de código legível: [Doom][doomConventions]
 ## Exercício
-O exercício é um programa que determina subsequência de comprimento K em um vetor que tenha a naior soma. ([Link][exercicio])
+O exercício é um programa que determina subsequência de comprimento K em um vetor que tenha a maior soma. ([Link][exercicio])
 ## Vídeo: [Link][video]
 
 [doomConventions]: https://fabiensanglard.net/fd_proxy/doom3/CodeStyleConventions.pdf
